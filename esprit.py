@@ -2,17 +2,6 @@ import numpy as np
 
 
 def ESPRIT(y, n, m):
-    """
-    Perform the ESPRIT (Estimation of Signal Parameters via Rotational Invariance Techniques) algorithm.
-
-    Parameters:
-    y (array-like): Input signal, should be a 1D array or list.
-    n (int): Number of signal sources.
-    m (int): Number of snapshots (length of the sliding window).
-
-    Returns:
-    numpy.ndarray: Estimated angles (in radians) of the signal sources.
-    """
 
     y = np.asarray(y).flatten()
     N = len(y)

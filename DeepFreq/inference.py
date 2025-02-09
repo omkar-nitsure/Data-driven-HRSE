@@ -21,28 +21,13 @@ fc_module.eval()
 xgrid = np.linspace(0, 0.5, fr_module.fr_size, endpoint=False)
 
 path = f"../data/SNR_{snr}/"
-s_temp, f1, f2, modes_test = [], [], [], []
 
-folders = os.listdir(path)
+s_temp = np.load(path + "x_test.npz")["arr_0"]
+f1 = np.load(path + "f1_test.npz")["arr_0"]
+f2 = np.load(path + "f2_test.npz")["arr_0"]
+modes_test = np.load(path + "modes_test.npz")["arr_0"]
 
-for folder in folders:
-    if "x_test" in folder:
-        for file in os.listdir(path + folder):
-            s_temp.append(np.load(path + folder + "/" + file)["arr_0"])
-    elif "f1_test" in folder:
-        for file in os.listdir(path + folder):
-            f1.append(np.load(path + folder + "/" + file)["arr_0"])
-    elif "f2_test" in folder:
-        for file in os.listdir(path + folder):
-            f2.append(np.load(path + folder + "/" + file)["arr_0"])
-    elif "modes_test" in folder:
-        modes_test.append(np.load(path + folder + "/" + file)["arr_0"])
-
-s_temp = np.concatenate(s_temp, axis=0)
-f1 = np.concatenate(f1, axis=0)
-f2 = np.concatenate(f2, axis=0)
 nfreq = 2 * np.ones(s_temp.shape[0], dtype="int")
-modes_test = np.concatenate(modes_test, axis=0)
 
 f = np.zeros((f1.shape[0], 10))
 f[:, 0] = f1

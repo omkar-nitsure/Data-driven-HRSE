@@ -71,24 +71,10 @@ def gen_signal(num_samples, signal_dim, num_freq, min_sep, distance='normal', am
     nfreq = 2*np.ones(num_samples, dtype='int')
 
     path = "data/SNR_30/"
-    s_temp, f1, f2 = [], [], []
 
-    folders = os.listdir(path)
-
-    for folder in folders:
-        if "x_train" in folder:
-            for file in os.listdir(path + folder):
-                    s_temp.append(np.load(path + folder + '/' + file)['arr_0'])
-        elif "f1_train" in folder:
-            for file in os.listdir(path + folder):
-                    f1.append(np.load(path + folder + '/' + file)['arr_0'])
-        elif "f2_train" in folder:
-            for file in os.listdir(path + folder):
-                    f2.append(np.load(path + folder + '/' + file)['arr_0'])
-
-    s_temp = np.concatenate(s_temp, axis=0)
-    f1 = np.concatenate(f1, axis=0)
-    f2 = np.concatenate(f2, axis=0)
+    s_temp = np.load(path + 'x_train.npz')['arr_0']
+    f1 = np.load(path + 'f1_train.npz')['arr_0']
+    f2 = np.load(path + 'f2_train.npz')['arr_0']
 
     f = np.zeros((f1.shape[0], 2))
     f[:, 0] = f1

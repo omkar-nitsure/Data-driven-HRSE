@@ -1,5 +1,14 @@
 import numpy as np
 import os
+import random
+
+def set_seed(seed: int):
+
+    random.seed(seed)
+    np.random.seed(seed)
+
+seed_value = 42
+set_seed(seed_value)
 
 modes_train = np.array([5, 1, 2, 3, 8, 9])
 modes_test = np.array([4, 5, 0, 6, 7])
@@ -10,21 +19,7 @@ n_inst_test = 1
 N = 150
 M = 50
 grid_limit = 75
-snr = 15
-n_shards = 8
-
-
-def shard_dataset(data, n_shards):
-    n = len(data)
-    shard_size = n // n_shards
-    shards = []
-    for i in range(n_shards):
-        start = i * shard_size
-        end = start + shard_size
-        if i == n_shards - 1:
-            end = n
-        shards.append(data[start:end])
-    return shards
+snr = 5
 
 
 def generate_dataset(N, n_freq_pairs, mode, grid_limit=75, n_instances=1, snr=15):
@@ -43,19 +38,13 @@ def generate_dataset(N, n_freq_pairs, mode, grid_limit=75, n_instances=1, snr=15
     elif mode == 1:
 
         f1 = np.random.uniform(0, 0.5 - delta_f, n_freq_pairs)
-        f2 = (
-            f1
-            + delta_f
-            + np.random.uniform(-(f1 + delta_f), 0.5 - f1 - delta_f, n_freq_pairs)
-        )
+        f2 = (f1 + delta_f + np.random.uniform(-(f1 + delta_f), 0.5 - f1 - delta_f, n_freq_pairs))
 
     elif mode == 2:
 
         grid_x = np.linspace(1, grid_limit, grid_limit)
         f1 = np.random.choice(grid_x, n_freq_pairs)
-        f2 = np.array(
-            [np.random.choice(np.delete(grid_x, np.where(grid_x == f))) for f in f1]
-        )
+        f2 = np.array([np.random.choice(np.delete(grid_x, np.where(grid_x == f))) for f in f1])
 
         f1 *= delta_f
         f2 *= delta_f
@@ -117,8 +106,8 @@ def generate_dataset(N, n_freq_pairs, mode, grid_limit=75, n_instances=1, snr=15
         f1 = 0.1 * np.ones(n_freq_pairs)
         f2 = 0.2 * np.ones(n_freq_pairs)
 
-    f1 *= 2 * np.pi
-    f2 *= 2 * np.pi
+    f1 *= (2 * np.pi)
+    f2 *= (2 * np.pi)
 
     f1_final = []
     f2_final = []
@@ -177,19 +166,16 @@ f1 = f1[idx]
 f2 = f2[idx]
 mode_vals = mode_vals[idx]
 
-os.mkdir(f"data/SNR_{snr}")
+os.makedirs(f"data/SNR_{snr}", exist_ok=True)
 
 folders = ["x_train", "y_train", "z_train", "f1_train", "f2_train", "modes_train"]
 arrs = [x[:, :M], y, x[:, M:], f1, f2, mode_vals]
 
 for f in range(len(folders)):
-    os.mkdir(f"data/SNR_{snr}/{folders[f]}")
-    shards = shard_dataset(arrs[f], n_shards)
 
-    for i in range(n_shards):
-        np.savez_compressed(
-            f"data/SNR_{snr}/{folders[f]}/{folders[f]}_{i}.npz", np.array(shards[i])
-        )
+    np.savez_compressed(
+        f"data/SNR_{snr}/{folders[f]}.npz", np.array(arrs[f])
+    )
 
 x = np.zeros((np.sum(n_test) * n_inst_test, N), dtype=complex)
 y = np.zeros((np.sum(n_test) * n_inst_test, N - M), dtype=complex)
@@ -227,10 +213,7 @@ folders = ["x_test", "y_test", "z_test", "f1_test", "f2_test", "modes_test"]
 arrs = [x[:, :M], y, x[:, M:], f1, f2, mode_vals]
 
 for f in range(len(folders)):
-    os.mkdir(f"data/SNR_{snr}/{folders[f]}")
-    shards = shard_dataset(arrs[f], n_shards)
 
-    for i in range(n_shards):
-        np.savez_compressed(
-            f"data/SNR_{snr}/{folders[f]}/{folders[f]}_{i}.npz", np.array(shards[i])
-        )
+    np.savez_compressed(
+        f"data/SNR_{snr}/{folders[f]}.npz", np.array(arrs[f])
+    )
